@@ -18,6 +18,8 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        setCalculatorData(calculatorData)
+
         binding.buttonCalculatorClear.setOnClickListener {
             setCalculatorData(insertion = "0", isClearCall = true)
         }
