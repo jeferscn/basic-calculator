@@ -8,7 +8,6 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         const val MATH_SYMBOLS = ".+-*/,%"
-        const val NUMBERS = "0123456789"
     }
 
     private lateinit var binding: ActivityMainBinding
