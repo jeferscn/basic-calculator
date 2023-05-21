@@ -1,0 +1,333 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#222222"
+    android:orientation="vertical"
+    tools:context=".MainActivity">
+
+    <TextView
+        android:id="@+id/text_calculator_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fontFamily="sans-serif"
+        android:gravity="center_horizontal"
+        android:padding="8dp"
+        android:text="Calculator"
+        android:textColor="#FF9C0E"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/text_calculator_data"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:ellipsize="start"
+        android:fontFamily="sans-serif"
+        android:gravity="bottom|end"
+        android:maxLines="7"
+        android:padding="16dp"
+        android:textColor="#00BCD4"
+        android:textSize="35sp"
+        app:layout_constraintBottom_toTopOf="@+id/llayout_calculator_buttons"
+        app:layout_constraintTop_toBottomOf="@+id/text_calculator_title"
+        tools:text="0" />
+
+    <androidx.appcompat.widget.LinearLayoutCompat
+        android:id="@+id/llayout_calculator_buttons"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="bottom"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        tools:layout_editor_absoluteX="0dp">
+
+        <androidx.appcompat.widget.LinearLayoutCompat
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/button_calculator_clear"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:backgroundTint="#8A1414"
+                android:maxHeight="90dp"
+                android:text="C"
+                android:textColor="@color/white"
+                android:textSize="30sp"
+                app:cornerRadius="50dp"
+                app:rippleColor="#874343" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/button_calculator_invert_value"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:backgroundTint="#EA900F"
+                android:maxHeight="90dp"
+                android:text="+/-"
+                android:textColor="@color/white"
+                android:textSize="30sp"
+                app:cornerRadius="50dp"
+                app:rippleColor="#E8B56B" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/button_calculator_percentage"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:backgroundTint="#EA900F"
+                android:maxHeight="90dp"
+                android:text="%"
+                android:textColor="@color/white"
+                android:textSize="30sp"
+                app:cornerRadius="50dp"
+                app:rippleColor="#E8B56B" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/button_calculator_division"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:backgroundTint="#EA900F"
+                android:maxHeight="90dp"
+                android:text="/"
+                android:textColor="@color/white"
+                android:textSize="30sp"
+                app:cornerRadius="50dp"
+                app:rippleColor="#E8B56B" />
+
+        </androidx.appcompat.widget.LinearLayoutCompat>
+
+        <androidx.appcompat.widget.LinearLayoutCompat
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/button_calculator_seven"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:backgroundTint="#444444"
+                android:maxHeight="90dp"
+                android:text="7"
+                android:textColor="@color/white"
+                android:textSize="30sp"
+                app:cornerRadius="50dp"
+                app:rippleColor="#9E9D9D" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/button_calculator_eight"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:backgroundTint="#444444"
+                android:maxHeight="90dp"
+                android:text="8"
+                android:textColor="@color/white"
+                android:textSize="30sp"
+                app:cornerRadius="50dp"
+                app:rippleColor="#9E9D9D" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/button_calculator_nine"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:backgroundTint="#444444"
+                android:maxHeight="90dp"
+                android:text="9"
+                android:textColor="@color/white"
+                android:textSize="30sp"
+                app:cornerRadius="50dp"
+                app:rippleColor="#9E9D9D" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/button_calculator_multiply"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:backgroundTint="#FF9C0E"
+                android:maxHeight="90dp"
+                android:text="*"
+                android:textColor="@color/white"
+                android:textSize="30sp"
+                app:cornerRadius="50dp"
+                app:rippleColor="#E8B56B" />
+
+        </androidx.appcompat.widget.LinearLayoutCompat>
+
+        <androidx.appcompat.widget.LinearLayoutCompat
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/button_calculator_four"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:backgroundTint="#444444"
+                android:maxHeight="90dp"
+                android:text="4"
+                android:textColor="@color/white"
+                android:textSize="30sp"
+                app:cornerRadius="50dp"
+                app:rippleColor="#9E9D9D" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/button_calculator_five"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:backgroundTint="#444444"
+                android:maxHeight="90dp"
+                android:text="5"
+                android:textColor="@color/white"
+                android:textSize="30sp"
+                app:cornerRadius="50dp"
+                app:rippleColor="#9E9D9D" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/button_calculator_six"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:backgroundTint="#444444"
+                android:maxHeight="90dp"
+                android:text="6"
+                android:textColor="@color/white"
+                android:textSize="30sp"
+                app:cornerRadius="50dp"
+                app:rippleColor="#9E9D9D" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/button_calculator_minus"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:backgroundTint="#FF9C0E"
+                android:maxHeight="90dp"
+                android:text="-"
+                android:textColor="@color/white"
+                android:textSize="30sp"
+                app:cornerRadius="50dp"
+                app:rippleColor="#E8B56B" />
+
+        </androidx.appcompat.widget.LinearLayoutCompat>
+
+        <androidx.appcompat.widget.LinearLayoutCompat
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/button_calculator_one"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:backgroundTint="#444444"
+                android:maxHeight="90dp"
+                android:text="1"
+                android:textColor="@color/white"
+                android:textSize="30sp"
+                app:cornerRadius="50dp"
+                app:rippleColor="#9E9D9D" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/button_calculator_two"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:backgroundTint="#444444"
+                android:maxHeight="90dp"
+                android:text="2"
+                android:textColor="@color/white"
+                android:textSize="30sp"
+                app:cornerRadius="50dp"
+                app:rippleColor="#9E9D9D" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/button_calculator_three"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:backgroundTint="#444444"
+                android:maxHeight="90dp"
+                android:text="3"
+                android:textColor="@color/white"
+                android:textSize="30sp"
+                app:cornerRadius="50dp"
+                app:rippleColor="#9E9D9D" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/button_calculator_addition"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:backgroundTint="#FF9C0E"
+                android:maxHeight="90dp"
+                android:text="+"
+                android:textColor="@color/white"
+                android:textSize="30sp"
+                app:cornerRadius="50dp"
+                app:rippleColor="#E8B56B" />
+
+        </androidx.appcompat.widget.LinearLayoutCompat>
+
+        <androidx.appcompat.widget.LinearLayoutCompat
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/button_calculator_zero"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:backgroundTint="#444444"
+                android:maxHeight="90dp"
+                android:text="0"
+                android:textColor="@color/white"
+                android:textSize="30sp"
+                app:cornerRadius="50dp"
+                app:rippleColor="#9E9D9D" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/button_calculator_dot"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:backgroundTint="#444444"
+                android:maxHeight="90dp"
+                android:text="."
+                android:textColor="@color/white"
+                android:textSize="30sp"
+                app:cornerRadius="50dp"
+                app:rippleColor="#9E9D9D" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/button_calculator_equal"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:backgroundTint="#FF9C0E"
+                android:maxHeight="90dp"
+                android:text="="
+                android:textColor="@color/white"
+                android:textSize="30sp"
+                app:cornerRadius="50dp"
+                app:rippleColor="#E8B56B" />
+
+        </androidx.appcompat.widget.LinearLayoutCompat>
+
+    </androidx.appcompat.widget.LinearLayoutCompat>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
