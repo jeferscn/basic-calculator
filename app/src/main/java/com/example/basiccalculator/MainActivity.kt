@@ -7,7 +7,8 @@ import com.example.basiccalculator.databinding.ActivityMainBinding
 class MainActivity : AppCompatActivity() {
 
     companion object {
-        const val MATH_SYMBOLS = ".+-*/,"
+        const val MATH_SYMBOLS = ".+-*/,%"
+        const val NUMBERS = "0123456789"
     }
 
     private lateinit var binding: ActivityMainBinding
@@ -117,12 +118,24 @@ class MainActivity : AppCompatActivity() {
         isDotCall: Boolean = false,
         isClearCall: Boolean = false
     ) {
-        if (!hasSymbolEnqueue(calculatorData) && !isClearCall) {
+        val hasSymbolAtLast = hasSymbolAtLast(calculatorData) && !isClearCall
+        val hasNumberAtLast = hasNumberAtLast(calculatorData) && !isClearCall
+        val isSymbolInput = isSymbolInput(insertion)
+
+        /*
+        * se número na última posição deve permitir mais numero ou simbolo
+        * se simbolo na última posição deve permitir apenas número
+        *
+        *
+        * */
+        if (isSymbolInput && !hasSymbolAtLast) {
             calculatorData += insertion
             calculatorData = replaceLeftZeroNumber(isDotCall)
-
             binding.textCalculatorData.text = calculatorData
-
+        } else if (!isSymbolInput && (hasNumberAtLast || hasSymbolAtLast)) {
+            calculatorData += insertion
+            calculatorData = replaceLeftZeroNumber(isDotCall)
+            binding.textCalculatorData.text = calculatorData
         } else if (isClearCall) {
             calculatorData = "0"
             binding.textCalculatorData.text = calculatorData
@@ -140,7 +153,7 @@ class MainActivity : AppCompatActivity() {
         return calculatorData
     }
 
-    private fun hasSymbolEnqueue(calculatorData: String): Boolean {
+    private fun hasSymbolAtLast(calculatorData: String): Boolean {
         for (character in MATH_SYMBOLS.iterator()) {
             if (calculatorData.last() == character) {
                 return true
@@ -149,4 +162,21 @@ class MainActivity : AppCompatActivity() {
         return false
     }
 
+    private fun hasNumberAtLast(calculatorData: String): Boolean {
+        for (character in MATH_SYMBOLS.iterator()) {
+            if (calculatorData.last() != character) {
+                return true
+            }
+        }
+        return false
+    }
+
+    private fun isSymbolInput(insertion: String): Boolean {
+        for (character in MATH_SYMBOLS.iterator()) {
+            if (insertion.last() == character) {
+                return true
+            }
+        }
+        return false
+    }
 }
