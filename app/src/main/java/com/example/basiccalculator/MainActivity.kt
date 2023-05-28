@@ -2,6 +2,7 @@ package com.example.basiccalculator
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.widget.Toast
 import com.example.basiccalculator.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
@@ -142,15 +143,18 @@ class MainActivity : AppCompatActivity() {
             val firstMathSymbol = takeFirstSymbol(calculatorData)
             val valuesList = calculatorData.split(firstMathSymbol)
 
-
-            val result = when (firstMathSymbol) {
-                "+" -> "${valuesList[0].toInt() + valuesList[1].toInt()}"
-                "-" -> "${valuesList[0].toInt() - valuesList[1].toInt()}"
-                "*" -> "${valuesList[0].toInt() * valuesList[1].toInt()}"
-                "/" -> "${valuesList[0].toInt() / valuesList[1].toInt()}"
-                else -> ""
+            runCatching {
+                val result = when (firstMathSymbol) {
+                    "+" -> "${valuesList[0].toInt() + valuesList[1].toInt()}"
+                    "-" -> "${valuesList[0].toInt() - valuesList[1].toInt()}"
+                    "*" -> "${valuesList[0].toInt() * valuesList[1].toInt()}"
+                    "/" -> "${valuesList[0].toInt() / valuesList[1].toInt()}"
+                    else -> ""
+                }
+                return result
+            }.onFailure {
+                Toast.makeText( this,"Entrada inválida, tente novamente!", Toast.LENGTH_SHORT).show()
             }
-            return result
         }
         return calculatorData
     }
