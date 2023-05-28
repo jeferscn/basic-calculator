@@ -2,7 +2,11 @@ package com.example.basiccalculator
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
+import androidx.core.math.MathUtils
 import com.example.basiccalculator.databinding.ActivityMainBinding
+import java.util.logging.LogManager
+import java.util.logging.Logger
 
 class MainActivity : AppCompatActivity() {
 
@@ -110,17 +114,26 @@ class MainActivity : AppCompatActivity() {
         val hasSymbolAtLast = hasSymbolAtLast(calculatorData) && !isClearCall
         val hasNumberAtLast = hasNumberAtLast(calculatorData) && !isClearCall
         val isSymbolInput = isSymbolInput(insertion)
-        val isAllowedNumberAndSymbolInput = isSymbolInput && !hasSymbolAtLast
-        val isAllowedOnlyNumberInput = !isSymbolInput && (hasNumberAtLast || hasSymbolAtLast)
+        val isAllowedOnlyNumberInput = isSymbolInput && !hasSymbolAtLast
+        val isAllowedNumberAndSymbolInput = !isSymbolInput && (hasNumberAtLast || hasSymbolAtLast)
+        val isAllowedSymbolChange = isAllowedSymbolChange(insertion, calculatorData) && !isDotCall
 
-        if (isAllowedNumberAndSymbolInput || isAllowedOnlyNumberInput) {
-            calculatorData += insertion
+        // Control the input flow to calculatorData
+        if (isAllowedNumberAndSymbolInput || isAllowedOnlyNumberInput || isAllowedSymbolChange) {
+            if (isAllowedSymbolChange) {
+                calculatorData = calculatorData.replace(calculatorData.last().toString(), insertion)
+            } else {
+                calculatorData += insertion
+            }
             calculatorData = replaceLeftZeroNumber(isDotCall)
             binding.textCalculatorData.text = calculatorData
         } else if (isClearCall) {
             calculatorData = "0"
             binding.textCalculatorData.text = calculatorData
         }
+    }
+
+    private fun solveMathEquation(calculatorData: String) {
     }
 
     private fun replaceLeftZeroNumber(isDotCall: Boolean): String {
@@ -181,6 +194,17 @@ class MainActivity : AppCompatActivity() {
         if (insertion.isNotBlank()) {
             for (character in MATH_SYMBOLS.iterator()) {
                 if (insertion.last() == character) {
+                    return true
+                }
+            }
+        }
+        return false
+    }
+
+    private fun isAllowedSymbolChange(insertion: String, calculatorData: String): Boolean {
+        if (insertion.isNotBlank()) {
+            for (character in MATH_SYMBOLS.iterator()) {
+                if (calculatorData.last() == character && isSymbolInput(insertion)) {
                     return true
                 }
             }
