@@ -110,18 +110,10 @@ class MainActivity : AppCompatActivity() {
         val hasSymbolAtLast = hasSymbolAtLast(calculatorData) && !isClearCall
         val hasNumberAtLast = hasNumberAtLast(calculatorData) && !isClearCall
         val isSymbolInput = isSymbolInput(insertion)
+        val isAllowedNumberAndSymbolInput = isSymbolInput && !hasSymbolAtLast
+        val isAllowedOnlyNumberInput = !isSymbolInput && (hasNumberAtLast || hasSymbolAtLast)
 
-        /*
-        * se número na última posição deve permitir mais numero ou simbolo
-        * se simbolo na última posição deve permitir apenas número
-        *
-        *
-        * */
-        if (isSymbolInput && !hasSymbolAtLast) {
-            calculatorData += insertion
-            calculatorData = replaceLeftZeroNumber(isDotCall)
-            binding.textCalculatorData.text = calculatorData
-        } else if (!isSymbolInput && (hasNumberAtLast || hasSymbolAtLast)) {
+        if (isAllowedNumberAndSymbolInput || isAllowedOnlyNumberInput) {
             calculatorData += insertion
             calculatorData = replaceLeftZeroNumber(isDotCall)
             binding.textCalculatorData.text = calculatorData
