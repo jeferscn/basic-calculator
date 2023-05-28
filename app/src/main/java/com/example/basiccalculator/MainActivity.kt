@@ -25,17 +25,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.buttonCalculatorInvertValue.setOnClickListener {
-            val isPositiveValue = calculatorData.take(1) != "-"
-            val isLeftZeroValueWithFloatingPoint = calculatorData.take(2) == "0."
-            val isLeftZeroValue = calculatorData.take(1) == "0"
-            val invertZeroWithFloatingPoint = isPositiveValue && isLeftZeroValueWithFloatingPoint && isLeftZeroValue
-            val invertIntegerValue = isPositiveValue && !isLeftZeroValueWithFloatingPoint && !isLeftZeroValue
-
-            if (calculatorData.take(1) == "-") {
-                calculatorData = calculatorData.replace("-", "")
-            } else if (invertZeroWithFloatingPoint || invertIntegerValue) {
-                calculatorData = calculatorData.reversed().plus("-").reversed()
-            }
+            invertNumber()
             setCalculatorData(insertion = "")
         }
 
@@ -152,6 +142,31 @@ class MainActivity : AppCompatActivity() {
         return calculatorData
     }
 
+    private fun invertNumber() {
+        val isPositiveValue = calculatorData.take(1) != "-"
+        val isLeftZeroValueWithFloatingPoint = calculatorData.take(2) == "0."
+        val isLeftZeroValue = calculatorData.take(1) == "0"
+        val hasSymbolAtFirst = hasSymbolAtFirst(calculatorData)
+        val isNegativeValueAndHasSymbolAtFirst = !isPositiveValue && hasSymbolAtFirst
+        val invertZeroWithFloatingPoint = isPositiveValue && isLeftZeroValueWithFloatingPoint && isLeftZeroValue && !hasSymbolAtFirst
+        val invertIntegerValue = isPositiveValue && !isLeftZeroValueWithFloatingPoint && !isLeftZeroValue && !hasSymbolAtFirst
+
+        if (isNegativeValueAndHasSymbolAtFirst) {
+            calculatorData = calculatorData.replace("-", "")
+        } else if (invertZeroWithFloatingPoint || invertIntegerValue) {
+            calculatorData = calculatorData.reversed().plus("-").reversed()
+        }
+    }
+
+    private fun hasSymbolAtFirst(calculatorData: String): Boolean {
+        for (character in MATH_SYMBOLS.iterator()) {
+            if (calculatorData.first() == character) {
+                return true
+            }
+        }
+        return false
+    }
+
     private fun hasSymbolAtLast(calculatorData: String): Boolean {
         for (character in MATH_SYMBOLS.iterator()) {
             if (calculatorData.last() == character) {
@@ -171,9 +186,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun isSymbolInput(insertion: String): Boolean {
-        for (character in MATH_SYMBOLS.iterator()) {
-            if (insertion.last() == character) {
-                return true
+        if (insertion.isNotBlank()) {
+            for (character in MATH_SYMBOLS.iterator()) {
+                if (insertion.last() == character) {
+                    return true
+                }
             }
         }
         return false
