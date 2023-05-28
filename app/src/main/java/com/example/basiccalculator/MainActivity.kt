@@ -2,11 +2,7 @@ package com.example.basiccalculator
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
-import androidx.core.math.MathUtils
 import com.example.basiccalculator.databinding.ActivityMainBinding
-import java.util.logging.LogManager
-import java.util.logging.Logger
 
 class MainActivity : AppCompatActivity() {
 
@@ -36,9 +32,7 @@ class MainActivity : AppCompatActivity() {
         binding.buttonCalculatorEqual.setOnClickListener {
             //TODO RESULT OF SUM HERE
 
-            calculatorData = (calculatorData.toIntOrNull() ?: 0).toString()
-
-            setCalculatorData(insertion = "")
+            setCalculatorData(insertion = "", isEqualCall = true)
         }
 
         binding.buttonCalculatorPercentage.setOnClickListener {
@@ -109,20 +103,25 @@ class MainActivity : AppCompatActivity() {
     private fun setCalculatorData(
         insertion: String,
         isDotCall: Boolean = false,
-        isClearCall: Boolean = false
+        isClearCall: Boolean = false,
+        isEqualCall: Boolean = false,
     ) {
         val hasSymbolAtLast = hasSymbolAtLast(calculatorData) && !isClearCall
         val hasNumberAtLast = hasNumberAtLast(calculatorData) && !isClearCall
         val isSymbolInput = isSymbolInput(insertion)
-        val isAllowedOnlyNumberInput = isSymbolInput && !hasSymbolAtLast
-        val isAllowedNumberAndSymbolInput = !isSymbolInput && (hasNumberAtLast || hasSymbolAtLast)
-        val isAllowedSymbolChange = isAllowedSymbolChange(insertion, calculatorData) && !isDotCall
+        val isAllowedSymbolChange = isAllowedSymbolChange(insertion, calculatorData) &&
+                !hasSymbolAtFirst(calculatorData) &&
+                takeFirstSymbol(calculatorData).isNotBlank() &&
+                !isDotCall
+        val isAllowedOnlyNumberInput = isSymbolInput && takeFirstSymbol(calculatorData).isNotBlank() && !hasSymbolAtLast
+        val isAllowedNumberAndSymbolInput = hasNumberAtLast || hasSymbolAtLast
 
         // Control the input flow to calculatorData
         if (isAllowedNumberAndSymbolInput || isAllowedOnlyNumberInput || isAllowedSymbolChange) {
             if (isAllowedSymbolChange) {
                 calculatorData = calculatorData.replace(calculatorData.last().toString(), insertion)
             } else {
+                calculatorData = solveMathEquation(insertion, isEqualCall)
                 calculatorData += insertion
             }
             calculatorData = replaceLeftZeroNumber(isDotCall)
@@ -133,7 +132,27 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun solveMathEquation(calculatorData: String) {
+    private fun solveMathEquation(insertion: String, isEqualCall: Boolean): String {
+        if (takeFirstSymbol(calculatorData).isNotBlank() &&
+            !isDotInput(insertion) &&
+            !isPercentageInput(insertion) &&
+            isSecondSymbolInput(insertion) ||
+            isEqualCall
+        ) {
+            val firstMathSymbol = takeFirstSymbol(calculatorData)
+            val valuesList = calculatorData.split(firstMathSymbol)
+
+
+            val result = when (firstMathSymbol) {
+                "+" -> "${valuesList[0].toInt() + valuesList[1].toInt()}"
+                "-" -> "${valuesList[0].toInt() - valuesList[1].toInt()}"
+                "*" -> "${valuesList[0].toInt() * valuesList[1].toInt()}"
+                "/" -> "${valuesList[0].toInt() / valuesList[1].toInt()}"
+                else -> ""
+            }
+            return result
+        }
+        return calculatorData
     }
 
     private fun replaceLeftZeroNumber(isDotCall: Boolean): String {
@@ -201,6 +220,45 @@ class MainActivity : AppCompatActivity() {
         return false
     }
 
+    private fun isDotInput(insertion: String): Boolean {
+        if (insertion.isNotBlank()) {
+            if (insertion.last() == '.') {
+                return true
+            }
+        }
+        return false
+    }
+
+    private fun isPercentageInput(insertion: String): Boolean {
+        if (insertion.isNotBlank()) {
+            if (insertion.last() == '.') {
+                return true
+            }
+        }
+        return false
+    }
+
+    private fun isSecondSymbolInput(insertion: String): Boolean {
+
+        var symbolsCount = 0
+        for (character in MATH_SYMBOLS.iterator()) {
+            for (symbol in calculatorData.iterator()) {
+                if (symbol == character) {
+                    symbolsCount++
+                }
+            }
+        }
+
+        if (isSymbolInput(insertion = insertion)) {
+            symbolsCount++
+        }
+
+        if (symbolsCount >= 2) {
+            return true
+        }
+        return false
+    }
+
     private fun isAllowedSymbolChange(insertion: String, calculatorData: String): Boolean {
         if (insertion.isNotBlank()) {
             for (character in MATH_SYMBOLS.iterator()) {
@@ -210,5 +268,16 @@ class MainActivity : AppCompatActivity() {
             }
         }
         return false
+    }
+
+    private fun takeFirstSymbol(calculatorData: String): String {
+        if (calculatorData.isNotBlank()) {
+            for (character in MATH_SYMBOLS.iterator()) {
+                if (calculatorData.contains(character) && character != '.') {
+                    return character.toString()
+                }
+            }
+        }
+        return ""
     }
 }
