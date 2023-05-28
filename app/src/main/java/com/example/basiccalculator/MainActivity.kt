@@ -1,9 +1,10 @@
 package com.example.basiccalculator
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import com.example.basiccalculator.databinding.ActivityMainBinding
+import java.text.DecimalFormat
 
 class MainActivity : AppCompatActivity() {
 
@@ -145,15 +146,15 @@ class MainActivity : AppCompatActivity() {
 
             runCatching {
                 val result = when (firstMathSymbol) {
-                    "+" -> "${valuesList[0].toInt() + valuesList[1].toInt()}"
-                    "-" -> "${valuesList[0].toInt() - valuesList[1].toInt()}"
-                    "*" -> "${valuesList[0].toInt() * valuesList[1].toInt()}"
-                    "/" -> "${valuesList[0].toInt() / valuesList[1].toInt()}"
+                    "+" -> "${valuesList[0].toFloat() + valuesList[1].toFloat()}"
+                    "-" -> "${valuesList[0].toFloat() - valuesList[1].toFloat()}"
+                    "*" -> "${valuesList[0].toFloat() * valuesList[1].toFloat()}"
+                    "/" -> "${valuesList[0].toFloat() / valuesList[1].toFloat()}"
                     else -> ""
                 }
-                return result
+                return result.decimalRemover()
             }.onFailure {
-                Toast.makeText( this,"Entrada inválida, tente novamente!", Toast.LENGTH_SHORT).show()
+                errorMessage()
             }
         }
         return calculatorData
@@ -176,8 +177,10 @@ class MainActivity : AppCompatActivity() {
         val isLeftZeroValue = calculatorData.take(1) == "0"
         val hasSymbolAtFirst = hasSymbolAtFirst(calculatorData)
         val isNegativeValueAndHasSymbolAtFirst = !isPositiveValue && hasSymbolAtFirst
-        val invertZeroWithFloatingPoint = isPositiveValue && isLeftZeroValueWithFloatingPoint && isLeftZeroValue && !hasSymbolAtFirst
-        val invertIntegerValue = isPositiveValue && !isLeftZeroValueWithFloatingPoint && !isLeftZeroValue && !hasSymbolAtFirst
+        val invertZeroWithFloatingPoint =
+            isPositiveValue && isLeftZeroValueWithFloatingPoint && isLeftZeroValue && !hasSymbolAtFirst
+        val invertIntegerValue =
+            isPositiveValue && !isLeftZeroValueWithFloatingPoint && !isLeftZeroValue && !hasSymbolAtFirst
 
         if (isNegativeValueAndHasSymbolAtFirst) {
             calculatorData = calculatorData.replace("-", "")
@@ -244,16 +247,17 @@ class MainActivity : AppCompatActivity() {
 
     private fun isSecondSymbolInput(insertion: String): Boolean {
 
+        val isDotFirstSymbol = takeFirstSymbol(calculatorData) != "."
         var symbolsCount = 0
         for (character in MATH_SYMBOLS.iterator()) {
             for (symbol in calculatorData.iterator()) {
-                if (symbol == character) {
+                if (symbol == character && !isDotFirstSymbol) {
                     symbolsCount++
                 }
             }
         }
 
-        if (isSymbolInput(insertion = insertion)) {
+        if (isSymbolInput(insertion = insertion) && !isDotFirstSymbol) {
             symbolsCount++
         }
 
@@ -283,5 +287,19 @@ class MainActivity : AppCompatActivity() {
             }
         }
         return ""
+    }
+
+    private fun String.decimalRemover(): String {
+        runCatching {
+            val decimalFormat = DecimalFormat("0.#")
+            return decimalFormat.format(this.toFloat()).toString()
+        }.onFailure {
+            errorMessage()
+        }
+        return this
+    }
+
+    private fun errorMessage() {
+        Toast.makeText(this, "Entrada inválida, tente novamente!", Toast.LENGTH_SHORT).show()
     }
 }
