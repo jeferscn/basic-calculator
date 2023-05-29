@@ -4,12 +4,13 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.basiccalculator.databinding.ActivityMainBinding
+import java.math.RoundingMode
 import java.text.DecimalFormat
 
 class MainActivity : AppCompatActivity() {
 
     companion object {
-        const val MATH_SYMBOLS = ".+-*/,%"
+        const val MATH_SYMBOLS = "+-*/%"
     }
 
     private lateinit var binding: ActivityMainBinding
@@ -32,8 +33,6 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.buttonCalculatorEqual.setOnClickListener {
-            //TODO RESULT OF SUM HERE
-
             setCalculatorData(insertion = "", isEqualCall = true)
         }
 
@@ -135,24 +134,27 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun solveMathEquation(insertion: String, isEqualCall: Boolean): String {
-        if (takeFirstSymbol(calculatorData).isNotBlank() &&
-            !isDotInput(insertion) &&
-            !isPercentageInput(insertion) &&
-            isSecondSymbolInput(insertion) ||
-            isEqualCall
-        ) {
+
+        //Verify if the call is coming from math operation symbols or from equals
+        val verifyDataToSum = takeFirstSymbol(calculatorData).isNotBlank() &&
+                !isDotInput(insertion) &&
+                !isPercentageInput(insertion) &&
+                (isSecondSymbolInput(insertion) || isEqualCall)
+
+        if (verifyDataToSum) {
+
             val firstMathSymbol = takeFirstSymbol(calculatorData)
             val valuesList = calculatorData.split(firstMathSymbol)
 
             runCatching {
                 val result = when (firstMathSymbol) {
-                    "+" -> "${valuesList[0].toFloat() + valuesList[1].toFloat()}"
-                    "-" -> "${valuesList[0].toFloat() - valuesList[1].toFloat()}"
-                    "*" -> "${valuesList[0].toFloat() * valuesList[1].toFloat()}"
-                    "/" -> "${valuesList[0].toFloat() / valuesList[1].toFloat()}"
+                    "+" -> "${valuesList[0].toDouble() + valuesList[1].toDouble()}"
+                    "-" -> "${valuesList[0].toDouble() - valuesList[1].toDouble()}"
+                    "*" -> "${valuesList[0].toDouble() * valuesList[1].toDouble()}"
+                    "/" -> "${valuesList[0].toDouble() / valuesList[1].toDouble()}"
                     else -> ""
                 }
-                return result.decimalRemover()
+                return result.decimalZerosRemover()
             }.onFailure {
                 errorMessage()
             }
@@ -246,18 +248,16 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun isSecondSymbolInput(insertion: String): Boolean {
-
-        val isDotFirstSymbol = takeFirstSymbol(calculatorData) != "."
         var symbolsCount = 0
         for (character in MATH_SYMBOLS.iterator()) {
             for (symbol in calculatorData.iterator()) {
-                if (symbol == character && !isDotFirstSymbol) {
+                if (symbol == character && !isDotFirstSymbol()) {
                     symbolsCount++
                 }
             }
         }
 
-        if (isSymbolInput(insertion = insertion) && !isDotFirstSymbol) {
+        if (isSymbolInput(insertion = insertion) && !isDotFirstSymbol()) {
             symbolsCount++
         }
 
@@ -289,17 +289,22 @@ class MainActivity : AppCompatActivity() {
         return ""
     }
 
-    private fun String.decimalRemover(): String {
+    private fun String.decimalZerosRemover(): String {
         runCatching {
             val decimalFormat = DecimalFormat("0.#")
-            return decimalFormat.format(this.toFloat()).toString()
-        }.onFailure {
-            errorMessage()
+            decimalFormat.roundingMode = RoundingMode.UNNECESSARY
+            return decimalFormat.format(this.toDouble()).toString()
         }
         return this
     }
 
+    private fun isDotFirstSymbol(): Boolean {
+        return takeFirstSymbol(calculatorData) == "."
+    }
+
     private fun errorMessage() {
         Toast.makeText(this, "Entrada inválida, tente novamente!", Toast.LENGTH_SHORT).show()
+        calculatorData = "Error"
+        binding.textCalculatorData.text = calculatorData
     }
 }
