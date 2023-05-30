@@ -132,6 +132,9 @@ class MainActivity : AppCompatActivity() {
             calculatorData = "0"
             binding.textCalculatorData.text = calculatorData
         }
+
+        //Remove the first input if it's forbidden symbol
+        removeForbiddenSymbolsAtFirst(calculatorData)
     }
 
     private fun solveMathEquation(insertion: String, isEqualCall: Boolean): String {
@@ -202,8 +205,15 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun hasSymbolAtFirst(calculatorData: String): Boolean {
-        for (character in MATH_SYMBOLS.iterator()) {
+    private fun removeForbiddenSymbolsAtFirst(calculatorData: String) {
+        if (hasSymbolAtFirst(calculatorData) && calculatorData.length < 2) {
+            this@MainActivity.calculatorData = "0"
+            binding.textCalculatorData.text = this@MainActivity.calculatorData
+        }
+    }
+
+    private fun hasForbiddenSymbolAtFirst(calculatorData: String): Boolean {
+        for (character in MATH_SYMBOLS_FORBIDDEN_AT_FIRST.iterator()) {
             if (calculatorData.first() == character) {
                 return true
             }
@@ -211,8 +221,8 @@ class MainActivity : AppCompatActivity() {
         return false
     }
 
-    private fun hasForbiddenSymbolAtFirst(calculatorData: String): Boolean {
-        for (character in MATH_SYMBOLS_FORBIDDEN_AT_FIRST.iterator()) {
+    private fun hasSymbolAtFirst(calculatorData: String): Boolean {
+        for (character in MATH_SYMBOLS.iterator()) {
             if (calculatorData.first() == character) {
                 return true
             }
