@@ -11,6 +11,7 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         const val MATH_SYMBOLS = "+-*/%"
+        const val MATH_SYMBOLS_FORBIDDEN_AT_FIRST = ".+*/%"
     }
 
     private lateinit var binding: ActivityMainBinding
@@ -136,12 +137,22 @@ class MainActivity : AppCompatActivity() {
     private fun solveMathEquation(insertion: String, isEqualCall: Boolean): String {
 
         //Verify if the call is coming from math operation symbols or from equals
-        val verifyDataToSum = takeFirstSymbol(calculatorData).isNotBlank() &&
-                !isDotInput(insertion) &&
-                !isPercentageInput(insertion) &&
-                (isSecondSymbolInput(insertion) || isEqualCall)
+        val isAllowedToCalculate =
+            takeFirstSymbol(calculatorData).isNotBlank() &&
+                    !checkInput(insertion, ".") &&
+                    !checkInput(insertion, "%") &&
+                    !hasForbiddenSymbolAtFirst(calculatorData)
 
-        if (verifyDataToSum) {
+
+        val activateResultBySymbolInput =
+            isSymbolInputToGetResult(insertion, 2) &&
+                    !hasSymbolAtFirst(calculatorData) ||
+                    isSymbolInputToGetResult(insertion, 3) &&
+                    hasSymbolAtFirst(calculatorData)
+
+
+
+        if (isAllowedToCalculate && (activateResultBySymbolInput || isEqualCall)) {
 
             val firstMathSymbol = takeFirstSymbol(calculatorData)
             val valuesList = calculatorData.split(firstMathSymbol)
@@ -200,6 +211,15 @@ class MainActivity : AppCompatActivity() {
         return false
     }
 
+    private fun hasForbiddenSymbolAtFirst(calculatorData: String): Boolean {
+        for (character in MATH_SYMBOLS_FORBIDDEN_AT_FIRST.iterator()) {
+            if (calculatorData.first() == character) {
+                return true
+            }
+        }
+        return false
+    }
+
     private fun hasSymbolAtLast(calculatorData: String): Boolean {
         for (character in MATH_SYMBOLS.iterator()) {
             if (calculatorData.last() == character) {
@@ -229,25 +249,16 @@ class MainActivity : AppCompatActivity() {
         return false
     }
 
-    private fun isDotInput(insertion: String): Boolean {
+    private fun checkInput(insertion: String, checkInsertionToThis: String): Boolean {
         if (insertion.isNotBlank()) {
-            if (insertion.last() == '.') {
+            if (insertion.last().toString() == checkInsertionToThis) {
                 return true
             }
         }
         return false
     }
 
-    private fun isPercentageInput(insertion: String): Boolean {
-        if (insertion.isNotBlank()) {
-            if (insertion.last() == '.') {
-                return true
-            }
-        }
-        return false
-    }
-
-    private fun isSecondSymbolInput(insertion: String): Boolean {
+    private fun isSymbolInputToGetResult(insertion: String, countUntilSymbol: Int = 0): Boolean {
         var symbolsCount = 0
         for (character in MATH_SYMBOLS.iterator()) {
             for (symbol in calculatorData.iterator()) {
@@ -261,7 +272,7 @@ class MainActivity : AppCompatActivity() {
             symbolsCount++
         }
 
-        if (symbolsCount >= 2) {
+        if (symbolsCount >= countUntilSymbol) {
             return true
         }
         return false
