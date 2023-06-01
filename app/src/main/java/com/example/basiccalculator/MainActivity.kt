@@ -124,7 +124,9 @@ class MainActivity : AppCompatActivity() {
                 calculatorData = calculatorData.replace(calculatorData.last().toString(), insertion)
             } else {
                 calculatorData = solveMathEquation(insertion, isEqualCall)
-                calculatorData += insertion
+                if (!checkInput(insertion, "%")) {
+                    calculatorData += insertion
+                }
             }
             calculatorData = replaceLeftZeroNumber(isDotCall)
             binding.textCalculatorData.text = calculatorData
@@ -143,9 +145,7 @@ class MainActivity : AppCompatActivity() {
         val isAllowedToCalculate =
             takeFirstSymbol(calculatorData).isNotBlank() &&
                     !checkInput(insertion, ".") &&
-                    !checkInput(insertion, "%") &&
                     !hasForbiddenSymbolAtFirst(calculatorData)
-
 
         val activateResultBySymbolInput =
             isSymbolInputToGetResult(insertion, 2) &&
@@ -153,27 +153,51 @@ class MainActivity : AppCompatActivity() {
                     isSymbolInputToGetResult(insertion, 3) &&
                     hasSymbolAtFirst(calculatorData)
 
-
-
         if (isAllowedToCalculate && (activateResultBySymbolInput || isEqualCall)) {
+
+            // Symbol removal if value is negative
+            var isNegativeValue = false
+            if (calculatorData.first() == '-') {
+                calculatorData = calculatorData.drop(1)
+                isNegativeValue = true
+            }
 
             val firstMathSymbol = takeFirstSymbol(calculatorData)
             val valuesList = calculatorData.split(firstMathSymbol)
 
             runCatching {
-                val result = when (firstMathSymbol) {
-                    "+" -> "${valuesList[0].toDouble() + valuesList[1].toDouble()}"
-                    "-" -> "${valuesList[0].toDouble() - valuesList[1].toDouble()}"
-                    "*" -> "${valuesList[0].toDouble() * valuesList[1].toDouble()}"
-                    "/" -> "${valuesList[0].toDouble() / valuesList[1].toDouble()}"
-                    else -> ""
+                if (insertion == "%") {
+                    return percentageEquation(valuesList[0].toDouble(), valuesList[1].removePercentageAtLast()).decimalZerosRemover().addNegativeSymbolAtFirst(isNegativeValue)
+                } else {
+                    val result = when (firstMathSymbol) {
+                        "+" -> "${valuesList[0].toDouble() + valuesList[1].toDouble()}"
+                        "-" -> "${valuesList[0].toDouble() - valuesList[1].toDouble()}"
+                        "*" -> "${valuesList[0].toDouble() * valuesList[1].toDouble()}"
+                        "/" -> "${valuesList[0].toDouble() / valuesList[1].toDouble()}"
+                        else -> ""
+                    }
+
+                    return result.decimalZerosRemover().addNegativeSymbolAtFirst(isNegativeValue)
+
                 }
-                return result.decimalZerosRemover()
             }.onFailure {
                 errorMessage()
             }
         }
         return calculatorData
+    }
+    private fun percentageEquation(value1: Double, value2: String): String {
+        val string = value2.decimalZerosRemover()
+
+        val result = when (takeFirstSymbol(calculatorData)) {
+            "+" -> "${value1 + (value1 * (string.toDouble() / 100))}"
+            "-" -> "${value1 - (value1 * (string.toDouble() / 100))}"
+            "*" -> "${value1 * (string.toDouble() / 100)}"
+            "/" -> "${value1 / (string.toDouble() / 100)}"
+            else -> ""
+        }
+
+        return result
     }
 
     private fun replaceLeftZeroNumber(isDotCall: Boolean): String {
@@ -210,6 +234,21 @@ class MainActivity : AppCompatActivity() {
             this@MainActivity.calculatorData = "0"
             binding.textCalculatorData.text = this@MainActivity.calculatorData
         }
+    }
+
+    private fun String.addNegativeSymbolAtFirst(isNegativeValue: Boolean): String {
+        if (isNegativeValue) {
+            return this.reversed().plus("-").reversed()
+        }
+
+        return this
+    }
+
+    private fun String.removePercentageAtLast(): String {
+        if (this.last() == '%') {
+            this.dropLast(1)
+        }
+        return this
     }
 
     private fun hasForbiddenSymbolAtFirst(calculatorData: String): Boolean {
@@ -267,6 +306,7 @@ class MainActivity : AppCompatActivity() {
         }
         return false
     }
+
 
     private fun isSymbolInputToGetResult(insertion: String, countUntilSymbol: Int = 0): Boolean {
         var symbolsCount = 0
