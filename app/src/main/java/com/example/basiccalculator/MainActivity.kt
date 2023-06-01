@@ -1,8 +1,11 @@
 package com.example.basiccalculator
 
+import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import com.example.basiccalculator.databinding.ActivityMainBinding
 import java.math.RoundingMode
 import java.text.DecimalFormat
@@ -17,10 +20,13 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private var calculatorData = "0"
 
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        window.statusBarColor = ContextCompat.getColor(this, R.color.black)
 
         setCalculatorData(calculatorData)
 
@@ -111,12 +117,18 @@ class MainActivity : AppCompatActivity() {
         val hasSymbolAtLast = hasSymbolAtLast(calculatorData) && !isClearCall
         val hasNumberAtLast = hasNumberAtLast(calculatorData) && !isClearCall
         val isSymbolInput = isSymbolInput(insertion)
+
         val isAllowedSymbolChange = isAllowedSymbolChange(insertion, calculatorData) &&
                 !hasSymbolAtFirst(calculatorData) &&
                 takeFirstSymbol(calculatorData).isNotBlank() &&
                 !isDotCall
-        val isAllowedOnlyNumberInput = isSymbolInput && takeFirstSymbol(calculatorData).isNotBlank() && !hasSymbolAtLast
-        val isAllowedNumberAndSymbolInput = hasNumberAtLast || hasSymbolAtLast
+
+        val isAllowedOnlyNumberInput = isSymbolInput &&
+                takeFirstSymbol(calculatorData).isNotBlank() &&
+                !hasSymbolAtLast
+
+        val isAllowedNumberAndSymbolInput = hasNumberAtLast ||
+                hasSymbolAtLast
 
         // Control the input flow to calculatorData
         if (isAllowedNumberAndSymbolInput || isAllowedOnlyNumberInput || isAllowedSymbolChange) {
@@ -128,10 +140,14 @@ class MainActivity : AppCompatActivity() {
                     calculatorData += insertion
                 }
             }
+
             calculatorData = replaceLeftZeroNumber(isDotCall)
+
             binding.textCalculatorData.text = calculatorData
         } else if (isClearCall) {
+
             calculatorData = "0"
+
             binding.textCalculatorData.text = calculatorData
         }
 
@@ -167,8 +183,14 @@ class MainActivity : AppCompatActivity() {
 
             runCatching {
                 if (insertion == "%") {
-                    return percentageEquation(valuesList[0].toDouble(), valuesList[1].removePercentageAtLast()).decimalZerosRemover().addNegativeSymbolAtFirst(isNegativeValue)
+
+                    return percentageEquation(
+                        valuesList[0].toDouble(),
+                        valuesList[1].removePercentageAtLast()
+                    ).decimalZerosRemover().addNegativeSymbolAtFirst(isNegativeValue)
+
                 } else {
+
                     val result = when (firstMathSymbol) {
                         "+" -> "${valuesList[0].toDouble() + valuesList[1].toDouble()}"
                         "-" -> "${valuesList[0].toDouble() - valuesList[1].toDouble()}"
@@ -186,6 +208,7 @@ class MainActivity : AppCompatActivity() {
         }
         return calculatorData
     }
+
     private fun percentageEquation(value1: Double, value2: String): String {
         val string = value2.decimalZerosRemover()
 
