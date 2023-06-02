@@ -118,15 +118,14 @@ class MainActivity : AppCompatActivity() {
         val hasSymbolAtLast = (hasSymbolAtLast(calculatorData) || takeLastSymbol(calculatorData) == ".") && !isClearCall
         val hasNumberAtLast = hasNumberAtLast(calculatorData) && !isClearCall
         val isSymbolInput = isSymbolInput(insertion)
-        val isPercentageFirstSymbolInput = takeFirstSymbol(calculatorData) == "%"
 
-        val isAllowedSymbolChange = isAllowedSymbolChange(insertion, calculatorData) &&
+        val isAllowedSymbolChange = isAllowedSymbolChange(insertion, calculatorData) && (
                 !checkInput(insertion, "%") &&
-                !hasSymbolAtFirst(calculatorData) &&
-                takeFirstSymbol(calculatorData).isNotBlank() ||
-                isDotLastSymbol() && !checkInput(insertion, "%") ||
-                !checkInput(insertion, "%") &&
-                takeFirstSymbol(calculatorData) == "%"
+                        !hasSymbolAtFirst(calculatorData) &&
+                        takeFirstSymbol(calculatorData).isNotBlank() ||
+                        isDotLastSymbol() && !checkInput(insertion, "%") ||
+                        !checkInput(insertion, "%") &&
+                        takeFirstSymbol(calculatorData) == "%")
 
         val isAllowedOnlyNumberInput = isSymbolInput &&
                 takeFirstSymbol(calculatorData).isNotBlank() &&
@@ -170,27 +169,27 @@ class MainActivity : AppCompatActivity() {
                     !checkInput(insertion, ".") &&
                     !hasForbiddenSymbolAtFirst(calculatorData) ||
                     !checkInput(insertion, "%") &&
-                    takeFirstSymbol(calculatorData) != "%"
+                    takeFirstSymbol(calculatorData) != "%" &&
+                    !isDotFirstSymbolFound(insertion)
 
         val activateResultBySymbolInput =
-            isSymbolInputToGetResult(insertion, 2) &&
-                    !hasSymbolAtFirst(calculatorData) ||
+            isSymbolInputToGetResult(insertion, 2) ||
                     isSymbolInputToGetResult(insertion, 3) &&
                     hasSymbolAtFirst(calculatorData)
 
         if (isAllowedToCalculate && (activateResultBySymbolInput || isEqualCall)) {
 
-            // Symbol removal if value is negative
-            var isNegativeValue = false
-            if (calculatorData.first() == '-') {
-                calculatorData = calculatorData.drop(1)
-                isNegativeValue = true
-            }
-
-            val firstMathSymbol = takeFirstSymbol(calculatorData)
-            val valuesList = calculatorData.split(firstMathSymbol)
-
             runCatching {
+                // Symbol removal if value is negative
+                var isNegativeValue = false
+                if (calculatorData.first() == '-') {
+                    calculatorData = calculatorData.drop(1)
+                    isNegativeValue = true
+                }
+
+                val firstMathSymbol = takeFirstSymbol(calculatorData)
+                val valuesList = calculatorData.split(firstMathSymbol)
+
                 if (insertion == "%" && takeFirstSymbol(calculatorData) != "%") {
 
                     return percentageEquation(
@@ -344,18 +343,18 @@ class MainActivity : AppCompatActivity() {
         var symbolsCount = 0
         for (character in MATH_SYMBOLS.iterator()) {
             for (symbol in calculatorData.iterator()) {
-                if (symbol == character && !isDotFirstSymbol()) {
+                if (symbol == character) {
                     symbolsCount++
                 }
             }
         }
 
-        if (isSymbolInput(insertion = insertion) && !isDotFirstSymbol()) {
+        if (isSymbolInput(insertion = insertion)) {
             symbolsCount++
         }
 
         if (symbolsCount >= countUntilSymbol) {
-            return true
+            return isSymbolInput(insertion)
         }
         return false
     }
@@ -402,8 +401,35 @@ class MainActivity : AppCompatActivity() {
         return this
     }
 
-    private fun isDotFirstSymbol(): Boolean {
-        return takeFirstSymbol(calculatorData) == "."
+    private fun isDotFirstSymbolFound(insertion: String): Boolean {
+        if (calculatorData.isNotBlank()) {
+            var otherSymbolIndex = 0
+            var dotSymbolIndex = 0
+            calculatorData.forEachIndexed { index, char ->
+                if (char == '.') {
+                    dotSymbolIndex = index
+                }
+            }
+
+            calculatorData.forEachIndexed { index, char ->
+                for (mathSymbols in MATH_SYMBOLS) {
+                    if (char == mathSymbols) {
+                        otherSymbolIndex = index
+                    }
+                }
+
+                if (dotSymbolIndex != 0 && isSymbolInput(insertion)) {
+                    otherSymbolIndex++
+                }
+            }
+
+            if (dotSymbolIndex < otherSymbolIndex) {
+                return true
+            }
+
+        }
+
+        return false
     }
 
     private fun isDotLastSymbol(): Boolean {
