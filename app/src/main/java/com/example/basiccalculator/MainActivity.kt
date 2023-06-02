@@ -6,6 +6,7 @@ import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.core.text.isDigitsOnly
 import com.example.basiccalculator.databinding.ActivityMainBinding
 import java.math.RoundingMode
 import java.text.DecimalFormat
@@ -13,7 +14,7 @@ import java.text.DecimalFormat
 class MainActivity : AppCompatActivity() {
 
     companion object {
-        const val MATH_SYMBOLS = "+-*/%"
+        const val MATH_SYMBOLS = ".+-*/%"
         const val MATH_SYMBOLS_FORBIDDEN_AT_FIRST = ".+*/%"
     }
 
@@ -114,14 +115,18 @@ class MainActivity : AppCompatActivity() {
         isClearCall: Boolean = false,
         isEqualCall: Boolean = false,
     ) {
-        val hasSymbolAtLast = hasSymbolAtLast(calculatorData) && !isClearCall
+        val hasSymbolAtLast = (hasSymbolAtLast(calculatorData) || takeLastSymbol(calculatorData) == ".") && !isClearCall
         val hasNumberAtLast = hasNumberAtLast(calculatorData) && !isClearCall
         val isSymbolInput = isSymbolInput(insertion)
+        val isPercentageFirstSymbolInput = takeFirstSymbol(calculatorData) == "%"
 
         val isAllowedSymbolChange = isAllowedSymbolChange(insertion, calculatorData) &&
+                !checkInput(insertion, "%") &&
                 !hasSymbolAtFirst(calculatorData) &&
-                takeFirstSymbol(calculatorData).isNotBlank() &&
-                !isDotCall
+                takeFirstSymbol(calculatorData).isNotBlank() ||
+                isDotLastSymbol() && !checkInput(insertion, "%") ||
+                !checkInput(insertion, "%") &&
+                takeFirstSymbol(calculatorData) == "%"
 
         val isAllowedOnlyNumberInput = isSymbolInput &&
                 takeFirstSymbol(calculatorData).isNotBlank() &&
@@ -131,9 +136,11 @@ class MainActivity : AppCompatActivity() {
                 hasSymbolAtLast
 
         // Control the input flow to calculatorData
-        if (isAllowedNumberAndSymbolInput || isAllowedOnlyNumberInput || isAllowedSymbolChange) {
+        if (!isClearCall && (isAllowedSymbolChange || isAllowedNumberAndSymbolInput || isAllowedOnlyNumberInput)) {
             if (isAllowedSymbolChange) {
-                calculatorData = calculatorData.replace(calculatorData.last().toString(), insertion)
+                if (!checkInput(insertion, "%") && takeFirstSymbol(calculatorData) != "%") {
+                    calculatorData = calculatorData.replace(calculatorData.last().toString(), insertion)
+                }
             } else {
                 calculatorData = solveMathEquation(insertion, isEqualCall)
                 if (!checkInput(insertion, "%")) {
@@ -161,7 +168,9 @@ class MainActivity : AppCompatActivity() {
         val isAllowedToCalculate =
             takeFirstSymbol(calculatorData).isNotBlank() &&
                     !checkInput(insertion, ".") &&
-                    !hasForbiddenSymbolAtFirst(calculatorData)
+                    !hasForbiddenSymbolAtFirst(calculatorData) ||
+                    !checkInput(insertion, "%") &&
+                    takeFirstSymbol(calculatorData) != "%"
 
         val activateResultBySymbolInput =
             isSymbolInputToGetResult(insertion, 2) &&
@@ -182,7 +191,7 @@ class MainActivity : AppCompatActivity() {
             val valuesList = calculatorData.split(firstMathSymbol)
 
             runCatching {
-                if (insertion == "%") {
+                if (insertion == "%" && takeFirstSymbol(calculatorData) != "%") {
 
                     return percentageEquation(
                         valuesList[0].toDouble(),
@@ -373,6 +382,17 @@ class MainActivity : AppCompatActivity() {
         return ""
     }
 
+    private fun takeLastSymbol(calculatorData: String): String {
+        if (calculatorData.isNotBlank()) {
+            for (character in MATH_SYMBOLS.iterator()) {
+                if (calculatorData.last() == character) {
+                    return character.toString()
+                }
+            }
+        }
+        return ""
+    }
+
     private fun String.decimalZerosRemover(): String {
         runCatching {
             val decimalFormat = DecimalFormat("0.#")
@@ -384,6 +404,10 @@ class MainActivity : AppCompatActivity() {
 
     private fun isDotFirstSymbol(): Boolean {
         return takeFirstSymbol(calculatorData) == "."
+    }
+
+    private fun isDotLastSymbol(): Boolean {
+        return takeLastSymbol(calculatorData) == "."
     }
 
     private fun errorMessage() {
